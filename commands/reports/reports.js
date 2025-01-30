@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const api = require('../../utils/api');
-const { OWNER_DISCORD_ID, API_URL } = require('../../config'); // ✅ Import env variables
+const { OWNER_DISCORD_ID } = require('../../config');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -67,7 +67,7 @@ module.exports = {
         guildId = interaction.options.getString('guild_id');
 
         // Fetch the guild details
-        const guildResponse = await api.get(`${API_URL}/guilds/filter`, {
+        const guildResponse = await api.get(`/guilds/filter`, {
           params: { guildId },
         });
         if (!guildResponse.data.guild) {
@@ -79,7 +79,7 @@ module.exports = {
 
       let report;
       try {
-        const reportResponse = await api.get(`${API_URL}/reports/pretty`, {
+        const reportResponse = await api.get(`/reports/pretty`, {
           params: { guildId, range, queueType },
         });
         report = reportResponse.data.report;
@@ -93,21 +93,16 @@ module.exports = {
       }
 
       // Fetch the summoners for the guild
-      const summonersResponse = await api.get(
-        `${API_URL}/summoners/guild/${guildId}`
-      );
+      const summonersResponse = await api.get(`/summoners/guild/${guildId}`);
       const summoners = summonersResponse.data || [];
 
       let cachedSummoners = [];
       let nonCachedSummoners = [];
 
       for (const summoner of summoners) {
-        const result = await api.get(
-          `${API_URL}/summoners/cache/${summoner.puuid}`,
-          {
-            params: { name: summoner.name },
-          }
-        );
+        const result = await api.get(`/summoners/cache/${summoner.puuid}`, {
+          params: { name: summoner.name },
+        });
         if (result.data.isCached) {
           cachedSummoners.push(summoner.name);
         } else {

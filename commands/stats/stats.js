@@ -1,6 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const api = require('../../utils/api');
-const { API_URL } = require('../../config');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -80,7 +79,7 @@ module.exports = {
       // Step 1: Get summoner's PUUID
       let puuid;
       try {
-        const puuidResponse = await api.get(`${API_URL}/riot/puuid`, {
+        const puuidResponse = await api.get(`/riot/puuid`, {
           params: { riotId: summonerRiotId },
         });
         puuid = puuidResponse.data.puuid;
@@ -95,7 +94,7 @@ module.exports = {
 
       // Step 2: Check if summoner exists in guild
       const guildSummonersResponse = await api.get(
-        `${API_URL}/summoners/guild/${guildId}`
+        `/summoners/guild/${guildId}`
       );
       const summonersInGuild = guildSummonersResponse.data || [];
 
@@ -115,12 +114,9 @@ module.exports = {
       }
 
       // Step 3: Check if summoner data is cached
-      const cacheResponse = await api.get(
-        `${API_URL}/summoners/cache/${puuid}`,
-        {
-          params: { range, name: summonerRiotId },
-        }
-      );
+      const cacheResponse = await api.get(`/summoners/cache/${puuid}`, {
+        params: { range, name: summonerRiotId },
+      });
 
       if (!cacheResponse.data.isCached) {
         throw new Error(
@@ -131,12 +127,9 @@ module.exports = {
       // Step 4: Fetch summoner stats
       let stats;
       try {
-        const statsResponse = await api.get(
-          `${API_URL}/stats/pretty/${puuid}`,
-          {
-            params: { range, queueType },
-          }
-        );
+        const statsResponse = await api.get(`/stats/pretty/${puuid}`, {
+          params: { range, queueType },
+        });
         stats = statsResponse.data.stats;
       } catch (error) {
         if (error.response?.status === 404) {

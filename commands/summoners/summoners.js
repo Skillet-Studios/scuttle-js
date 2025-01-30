@@ -61,9 +61,7 @@ module.exports = {
         // Fetch summoners list
         let summoners;
         try {
-          const response = await api.get(
-            `${API_URL}/summoners/guild/${guildId}`
-          );
+          const response = await api.get(`/summoners/guild/${guildId}`);
           summoners = response.data;
         } catch (error) {
           if (error.response?.status === 404) {
@@ -106,7 +104,7 @@ module.exports = {
 
           let success;
           try {
-            const response = await api.post(`${API_URL}/summoners`, body);
+            const response = await api.post(`/summoners`, body);
             success = response.data.success;
           } catch (error) {
             throw new Error(
@@ -130,7 +128,7 @@ module.exports = {
           // Remove summoner
           let success;
           try {
-            const response = await api.delete(`${API_URL}/summoners`, {
+            const response = await api.delete(`/summoners`, {
               params: { guildId: guildId.toString(), summonerRiotId },
             });
             success = response.data.success;
