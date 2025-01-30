@@ -1,4 +1,4 @@
-const { guildJoin, guildLeave, command } = require('../utils/logger');
+const logger = require('../utils/logger');
 const { ENVIRONMENT } = require('../config');
 const api = require('../utils/api');
 
@@ -59,7 +59,7 @@ module.exports = {
       await api.put('/guilds/count', { count: guild.client.guilds.cache.size });
 
       // Log the guild join event
-      await guildJoin(guild.client, guild);
+      await logger.guildJoin(guild.client, guild);
     } catch (error) {
       console.error(
         `Failed to handle guild join event for ${guild.name}. It is likely this guild is already in database:`,
@@ -79,7 +79,7 @@ module.exports = {
       console.log(`Left guild: ${guild.name} with Guild ID: ${guild.id}`);
 
       // Log the guild leave event
-      await guildLeave(guild.client, guild);
+      await logger.guildLeave(guild.client, guild);
     } catch (error) {
       console.error(
         `Failed to handle guild leave event for ${guild.name}:`,
@@ -97,26 +97,83 @@ module.exports = {
   async onInteractionCreate(interaction) {
     if (!interaction.isCommand()) return;
 
+    const command = interaction.client.commands.get(interaction.commandName);
+
+    if (!command) {
+      console.error(`❌ No command found for /${interaction.commandName}`);
+      return;
+    }
+
+    // Extract guild, user, and command details
+    const guildName = interaction.guild ? interaction.guild.name : 'DM';
+    const userTag = interaction.user.tag;
+    const commandName = interaction.commandName;
+    const subcommandName = interaction.options.getSubcommand(false); // Get subcommand if available
+
+    // Build log message
+    let logMessage = `\n📥 Command Received\n`;
+    logMessage += `🏠 Guild: ${guildName}\n`;
+    logMessage += `👤 User: ${userTag}\n`;
+    logMessage += `🛠️ Command: /${commandName}`;
+
+    if (subcommandName) {
+      logMessage += ` ${subcommandName}`; // Include subcommand if available
+    }
+
+    console.log(logMessage);
+
     try {
+      await command.execute(interaction);
       console.log(
-        `\n[${interaction.guild?.name || 'DM'}]  [${
-          interaction.user?.tag || 'Unknown User'
-        }]  [/${interaction.commandName}]`
+        `✅ Executed Successfully: /${commandName}${
+          subcommandName ? ` ${subcommandName}` : ''
+        }`
       );
 
-      // Normalize command name by replacing spaces with underscores
-      const commandName = interaction.commandName.replace(/ /g, '_');
-
-      // Log command analytics to external API
-      await api.post('/commands/analytics/count', { command: commandName });
-
-      // Log the command usage for internal tracking
-      await command(interaction.client, interaction);
+      // Log to Discord if the command has replied or deferred
+      if (interaction.replied || interaction.deferred) {
+        const reply = await interaction.fetchReply();
+        if (reply.embeds.length > 0) {
+          if (reply.embeds.length === 1) {
+            await logger.command(
+              interaction.client,
+              interaction,
+              reply.embeds[0]
+            );
+          } else {
+            await logger.command(
+              interaction.client,
+              interaction,
+              null,
+              reply.embeds
+            );
+          }
+        }
+      }
     } catch (error) {
       console.error(
-        `Failed to log command: /${interaction.commandName}`,
-        error.message
+        `❌ Error Executing /${commandName}${
+          subcommandName ? ` ${subcommandName}` : ''
+        }:`,
+        error
       );
+
+      try {
+        const errorEmbed = new EmbedBuilder()
+          .setTitle('❌ Command Error')
+          .setDescription('An error occurred while executing the command.')
+          .setColor(0xff0000);
+
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({ embeds: [errorEmbed], ephemeral: true });
+        } else {
+          await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+        }
+
+        await logger.command(interaction.client, interaction, errorEmbed);
+      } catch (replyError) {
+        console.error('❌ Failed to send error response:', replyError);
+      }
     }
   },
 

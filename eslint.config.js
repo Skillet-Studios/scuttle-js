@@ -29,7 +29,7 @@ module.exports = [
       'no-undef': 'off',
       'object-curly-spacing': ['error', 'always'],
       'prefer-const': 'error',
-      quotes: ['error', 'single'],
+      quotes: ['warning', 'single'],
       semi: ['error', 'always'],
       'space-before-blocks': 'error',
       'space-before-function-paren': [
