@@ -194,7 +194,12 @@ module.exports = {
       }
 
       // Log the error in the error tracking channel
-      await error(interaction.client, interaction, error.stack, error.message);
+      await logger.error(
+        interaction.client,
+        interaction,
+        error.stack,
+        error.message
+      );
     } catch (logError) {
       console.error('Failed to log error:', logError.message);
     }

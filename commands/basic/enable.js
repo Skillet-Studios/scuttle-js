@@ -1,6 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const api = require('../../utils/api');
-const logger = require('../../utils/logger');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -36,7 +35,6 @@ module.exports = {
         .setColor(0x00ff00);
 
       await interaction.followUp({ embeds: [embed] });
-      await logger.command(interaction.client, interaction, embed);
     } catch (error) {
       console.error('Failed to enable channel:', error.message);
 
