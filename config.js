@@ -10,6 +10,5 @@ module.exports = {
   OWNER_DISCORD_ID: process.env.OWNER_DISCORD_ID,
   SUPPORT_GUILD_LINK: process.env.SUPPORT_GUILD_LINK,
   CLIENT_ID: process.env.CLIENT_ID,
-  GUILD_ID: process.env.GUILD_ID,
   API_URL: process.env.API_URL,
 };
