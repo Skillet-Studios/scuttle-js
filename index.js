@@ -11,10 +11,8 @@ const token = process.env.DISCORD_TOKEN;
 // Create a new Discord bot client
 const client = new Client({
   intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.Guilds, // Matches intents.guilds = True
+    GatewayIntentBits.GuildMessages, // Matches intents.messages = True
   ],
 });
 
