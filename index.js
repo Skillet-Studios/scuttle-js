@@ -1,12 +1,11 @@
-// Require the necessary discord.js classes
-const { Client, Events, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, Events } = require('discord.js');
 const dotenv = require('dotenv');
+const events = require('./events');
 
 dotenv.config();
 
 const token = process.env.DISCORD_TOKEN;
 
-// Create a new client instance
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -16,12 +15,11 @@ const client = new Client({
   ],
 });
 
-// When the client is ready, run this code (only once).
-// The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
-// It makes some properties non-nullable.
-client.once(Events.ClientReady, (readyClient) => {
-  console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-});
+// Register event listeners
+client.once(Events.ClientReady, events.execute);
+client.on(Events.GuildCreate, events.onGuildJoin);
+client.on(Events.GuildDelete, events.onGuildLeave);
+client.on(Events.InteractionCreate, events.onInteractionCreate);
+client.on(Events.Error, events.onError);
 
-// Log in to Discord with your client's token
 client.login(token);
