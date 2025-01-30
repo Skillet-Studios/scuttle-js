@@ -46,64 +46,62 @@ module.exports = {
           .split('T')[0];
       }
 
-      // Fetch rankings from API
-      const response = await api.get('/rankings/pretty', {
-        params: {
-          guildId: interaction.guildId,
-          startDate: startDate,
-          queueType: queueType,
-        },
+      let rankings;
+      try {
+        const response = await api.get('/rankings/pretty', {
+          params: {
+            guildId: interaction.guildId,
+            startDate: startDate,
+            queueType: queueType,
+          },
+        });
+        rankings = response.data.rankings;
+      } catch (error) {
+        if (error.response?.status === 404) {
+          throw new Error(
+            'No rankings data found. Please ensure summoners are added to your server using `/summoners add Name Tag`.'
+          );
+        }
+        throw error; // Rethrow any other errors
+      }
+
+      const today = now.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      });
+      const startDateObj = new Date(startDate);
+      const formattedStartDate = startDateObj.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
       });
 
-      const rankings = response.data.rankings || null;
+      const embed = new EmbedBuilder()
+        .setTitle(`🏆 Top Summoners (${formattedStartDate} - ${today})`)
+        .setDescription(
+          `Top rankings in ${interaction.guild?.name || 'this guild'}`
+        )
+        .setColor(0xffd700); // Gold color
 
-      if (rankings) {
-        const today = now.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
+      for (const [statName, topEntries] of Object.entries(rankings)) {
+        const formattedEntries = topEntries
+          .map((entry, i) => `${i + 1}. ${entry.value} - ${entry.name}`)
+          .join('\n');
+
+        embed.addFields({
+          name: statName,
+          value: formattedEntries,
+          inline: true,
         });
-        const startDateObj = new Date(startDate);
-        const formattedStartDate = startDateObj.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-        });
-
-        const embed = new EmbedBuilder()
-          .setTitle(`🏆 Top Summoners (${formattedStartDate} - ${today})`)
-          .setDescription(
-            `Top rankings in ${interaction.guild?.name || 'this guild'}`
-          )
-          .setColor(0xffd700); // Gold color
-
-        for (const [statName, topEntries] of Object.entries(rankings)) {
-          const formattedEntries = topEntries
-            .map((entry, i) => `${i + 1}. ${entry.value} - ${entry.name}`)
-            .join('\n');
-
-          embed.addFields({
-            name: statName,
-            value: formattedEntries,
-            inline: true,
-          });
-        }
-
-        embed.setFooter({ text: 'Data is updated hourly.' });
-
-        await interaction.followUp({ embeds: [embed] });
-      } else {
-        const noDataEmbed = new EmbedBuilder()
-          .setTitle('❌ Rankings Command')
-          .setDescription('No rankings data available yet.')
-          .setColor(0xff0000)
-          .setFooter({ text: 'Data is updated hourly.' });
-
-        await interaction.followUp({ embeds: [noDataEmbed] });
       }
+
+      embed.setFooter({ text: 'Data is updated hourly.' });
+
+      await interaction.followUp({ embeds: [embed] });
     } catch (error) {
       console.error('❌ Error fetching rankings:', error);
       const errorEmbed = new EmbedBuilder()
         .setTitle('❌ Rankings Command Error')
-        .setDescription('An error occurred while retrieving rankings.')
+        .setDescription(error.message)
         .setColor(0xff0000);
 
       await interaction.followUp({ embeds: [errorEmbed] });
