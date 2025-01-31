@@ -11,4 +11,5 @@ module.exports = {
   SUPPORT_GUILD_LINK: process.env.SUPPORT_GUILD_LINK,
   CLIENT_ID: process.env.CLIENT_ID,
   API_URL: process.env.API_URL,
+  SCUTTLE_API_KEY: process.env.SCUTTLE_API_KEY,
 };
