@@ -14,14 +14,14 @@ module.exports = {
    */
   async execute(client) {
     try {
-      console.log(`${client.user.tag} has connected to Discord!`);
+      console.log(`✅ ${client.user.tag} has connected to Discord!`);
       console.log(
-        `${client.user.tag} is connected to ${client.guilds.cache.size} guilds.`
+        `✅ ${client.user.tag} is connected to ${client.guilds.cache.size} guilds.`
       );
 
       // Fetch application commands to ensure they are up-to-date
       await client.application.commands.fetch();
-      console.log('Bot tree commands synced.');
+      console.log('✅ Bot tree commands synced.');
 
       if (ENVIRONMENT === 'prod') {
         try {
@@ -34,11 +34,11 @@ module.exports = {
             shardCount: client.shard?.count || 1,
           });
         } catch (apiError) {
-          console.error('Failed to update external API:', apiError.message);
+          console.error('❌ Failed to update external API:', apiError.message);
         }
       }
     } catch (error) {
-      console.error('Error during bot initialization:', error.message);
+      console.error('❌ Error during bot initialization:', error.message);
     }
   },
 
