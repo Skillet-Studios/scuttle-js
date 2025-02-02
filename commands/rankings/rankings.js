@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const api = require('../../utils/api');
+const { getLastSunday } = require('../../utils/date');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -35,10 +36,8 @@ module.exports = {
       const subcommand = interaction.options.getSubcommand();
 
       if (subcommand === 'weekly') {
-        // Find the most recent Sunday
-        const mostRecentSunday = new Date(now);
-        mostRecentSunday.setDate(now.getDate() - now.getDay() + 1); // Sunday is day 0
-        startDate = mostRecentSunday.toISOString().split('T')[0];
+        // Determine the previous Sunday
+        startDate = getLastSunday();
       } else if (subcommand === 'monthly') {
         // First day of the current month
         startDate = new Date(now.getFullYear(), now.getMonth(), 1)
