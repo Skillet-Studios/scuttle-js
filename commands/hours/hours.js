@@ -54,22 +54,6 @@ module.exports = {
         .addStringOption((option) =>
           option.setName('tag').setDescription('Riot Tag').setRequired(true)
         )
-    )
-    .addSubcommand((subcommand) =>
-      subcommand
-        .setName('yearly')
-        .setDescription(
-          "Displays a summoner's playtime for games played in the last 365 days."
-        )
-        .addStringOption((option) =>
-          option
-            .setName('summoner_name')
-            .setDescription('The name of the summoner')
-            .setRequired(true)
-        )
-        .addStringOption((option) =>
-          option.setName('tag').setDescription('Riot Tag').setRequired(true)
-        )
     ),
 
   async execute(interaction) {
@@ -87,13 +71,7 @@ module.exports = {
     try {
       const subcommand = interaction.options.getSubcommand();
       const range =
-        subcommand === 'daily'
-          ? 1
-          : subcommand === 'weekly'
-          ? 7
-          : subcommand === 'monthly'
-          ? 30
-          : 365; // Yearly
+        subcommand === 'daily' ? 1 : subcommand === 'weekly' ? 7 : 31; // Default to monthly range
 
       const queueType = 'ranked_solo'; // Default to ranked solo queue
       const guildId = interaction.guildId;
