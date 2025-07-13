@@ -8,7 +8,7 @@ module.exports = {
   async execute(interaction) {
     try {
       const embed = new EmbedBuilder()
-        .setTitle('🪴 Scuttle is brought to you by Eduardo Alba')
+        .setTitle('🪴 Scuttle is brought to you by Skillet Studios')
         .setDescription(
           'I am a bot that provides quick and detailed **League of Legends** statistics.'
         )
